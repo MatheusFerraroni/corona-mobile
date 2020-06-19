@@ -1,6 +1,6 @@
 {
 	"isolamento": 0.7,
-	"chance_infeccao": 0.5,
+	"chance_infeccao": 0.3,
 	"tempo_infectado": 70,
 	"distancia_infectar": 100,
 	"random_infected": 0.1
