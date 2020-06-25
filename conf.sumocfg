@@ -1,10 +1,7 @@
 
 <configuration>
 	<input>
-		<net-file value="wuhan.net.xml"/>
-		<route-files value="trips.trips.xml"/>
+		<net-file value="grid.net.xml"/>
+		<route-files value="grid.trips.xml"/>
 	</input>
-	<output>
-		<emission-output value="results2.out.xml"/>
-	</output>
 </configuration>

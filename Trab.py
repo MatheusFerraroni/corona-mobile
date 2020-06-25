@@ -1,6 +1,10 @@
 import numpy as np
 import json
 import math
+import logging
+
+logging.basicConfig(filename='example.log',level=logging.DEBUG, filemode='w')
+
 
 total_infectados = 0
 
@@ -100,16 +104,17 @@ class Trabalho:
 
     def check_infections(self, traci):
         for i in range(0,len(self.veiculos),1):
+            c = None
             try:
                 c = self.veiculos[i]
                 c.update_infos(traci, self.step) # atualiza o estado da infeccao e precisa sempre ser executado primeiro para atualizar a posicao
+            except Exception as e: # remove que chegaram ao destino
+                self.veiculos[i] = None
 
+            if c!=None:
                 if not c.is_infected() and not c.can_infect:
                     c.remove(traci)
                     self.veiculos[i] = None
-            except Exception as e: # pode acontecer com veiculos com rotas muito pequenas que somem
-                self.veiculos[i] = None
-                print("Excpt:",e)
 
 
 
@@ -146,6 +151,11 @@ class Trabalho:
             if c.is_infected():
                 total_infectado+=1
 
-        print("Total veiculos ativos: ", total_veiculos,"/100%")
-        print("Total infectado: ", total_infectado,"/",(float(total_infectado)/total_veiculos),"%")
-        print("##################")
+
+        infos = {}
+        infos["step"] = self.step
+        infos["veiculos"] = total_veiculos
+        infos["infectados"] = total_infectado
+
+
+        logging.info(json.dumps(infos))

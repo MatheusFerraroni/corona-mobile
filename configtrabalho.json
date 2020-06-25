@@ -3,5 +3,6 @@
 	"chance_infeccao": 0.5,
 	"tempo_infectado": 70,
 	"distancia_infectar": 100,
-	"random_infected": 0.1
+	"random_infected": 0.1,
+	"remove_sick_after": 10
 }
