@@ -3,9 +3,6 @@ import json
 import math
 import logging
 
-logging.basicConfig(filename='example.log',level=logging.DEBUG, filemode='w')
-
-
 total_infectados = 0
 
 class CoronaCar:
@@ -38,7 +35,7 @@ class CoronaCar:
         x1, y1 = self.get_pos()
         x2, y2 = car.get_pos()
 
-        return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)  
+        return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
     def remove(self, traci):
         # print("REMOVENDO VEICULO", self.idd)
@@ -57,15 +54,20 @@ class CoronaCar:
         total_infectados += 1
 
 
-
-
 class Trabalho:
-    def __init__(self):
+
+    def __init__(self, config_file):
+
         self.veiculos = []
 
-        f = open("./configtrabalho.json","r")
+        config_path = './configurations/pandemic_a/{0}'.format(config_file)
+        f = open(config_path, "r")
         infos = json.loads(f.read())
         f.close()
+
+        log_path = './log_output/{0}'.format(config_file.split('.')[0])
+        logging.basicConfig(filename=log_path, level=logging.DEBUG, filemode='w')
+
         self.isolamento = infos["isolamento"]
         self.chance_infeccao = infos["chance_infeccao"]
         self.tempo_infectado = infos["tempo_infectado"]
