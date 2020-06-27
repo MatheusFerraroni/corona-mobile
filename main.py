@@ -52,13 +52,14 @@ def find_unused_port():
 
 def terminate_sumo(sumo):
     if sumo.returncode == None:
-        os.kill(sumo.pid, signal.SIGILL)
-        time.sleep(0.5)
-        if sumo.returncode == None:
-            os.kill(sumo.pid, signal.SIGKILL)
-            time.sleep(1)
-            if sumo.returncode == None:
-                time.sleep(10)
+        # os.kill(sumo.pid, signal.SIGILL)
+        os.system("taskkill.exe /F /im sumo.exe")
+        time.sleep(1)
+        # if sumo.returncode == None:
+        #     os.kill(sumo.pid, signal.SIGKILL)
+        #     time.sleep(1)
+        #     if sumo.returncode == None:
+        #         time.sleep(10)
 
 
 def run(network, begin, end, interval, config_file):
@@ -78,11 +79,13 @@ def run(network, begin, end, interval, config_file):
 
         step += 1
 
-    time.sleep(10)
+    controlador.stop()
+
+    time.sleep(3)
     print("Simulation finished")
     traci.close()
     sys.stdout.flush()
-    time.sleep(10)
+    time.sleep(3)
 
 
 def start_simulation(sumo, scenario, network, begin, end, interval, output, config_file):
@@ -122,7 +125,7 @@ def main():
     files = os.listdir('./configurations/pandemic_a')
 
     for config_file in files:
-        print(file)
+        # print(files)
         start_simulation(options.command, options.scenario, options.network, options.begin, options.end, options.interval, options.output, config_file)
 
 

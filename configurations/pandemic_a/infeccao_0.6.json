@@ -4,6 +4,7 @@
     "tempo_infectado": 70,
     "distancia_infectar": 100,
     "random_infected": 0.1,
+    "nome": "infection_0.6",
     "stationary_infection": [
         1800,
         3600,

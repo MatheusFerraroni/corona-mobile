@@ -1,12 +1,16 @@
 import numpy as np
 import json
 import math
-import logging
+# import logging
+# import logging.handlers
+
 
 total_infectados = 0
+total_criado = 0
 
 class CoronaCar:
     def __init__(self, idd):
+        global total_criado
         self.idd = idd
         self.infected = False
         self.infected_till = -1
@@ -14,6 +18,8 @@ class CoronaCar:
 
         self.last_update = -1
         self.pos = None
+
+        total_criado+=1
 
     def update_infos(self, traci, step):
         if self.last_update!=step:
@@ -65,14 +71,21 @@ class Trabalho:
         infos = json.loads(f.read())
         f.close()
 
-        log_path = './log_output/{0}'.format(config_file.split('.')[0])
-        logging.basicConfig(filename=log_path, level=logging.DEBUG, filemode='w')
+
+        log_path = './log_output/{0}'.format(infos["nome"])
+
+        self.file_log = open(log_path,"w")
+
 
         self.isolamento = infos["isolamento"]
         self.chance_infeccao = infos["chance_infeccao"]
         self.tempo_infectado = infos["tempo_infectado"]
         self.distancia_infectar = infos["distancia_infectar"]
         self.random_infected = infos["random_infected"]
+
+    def stop(self):
+        self.file_log.close()
+
 
 
     def new_car(self, traci, c):
@@ -147,17 +160,23 @@ class Trabalho:
 
 
         total_veiculos = len(self.veiculos)
-        total_infectado = 0
+        atual_total_infectado = 0
         for i in range(0, total_veiculos, 1): # percore entre os veiculos checando a distancia
             c = self.veiculos[i]
             if c.is_infected():
-                total_infectado+=1
+                atual_total_infectado+=1
 
 
         infos = {}
         infos["step"] = self.step
-        infos["veiculos"] = total_veiculos
-        infos["infectados"] = total_infectado
+        infos["atual_veiculos"] = total_veiculos
+        infos["atual_infectados"] = atual_total_infectado
+        infos["total_infectados"] = total_infectados
+        infos["total_criado"] = total_criado
 
 
-        logging.info(json.dumps(infos))
+
+        self.doLog(infos)
+
+    def doLog(self, infos):
+        self.file_log.write(json.dumps(infos)+"\n")

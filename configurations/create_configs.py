@@ -15,6 +15,7 @@ pandemic_a = {
     	"tempo_infectado": 70,
     	"distancia_infectar": 100,
     	"random_infected": 0.1,
+        "nome": "undefined",
         "stationary_infection": [1800, 3600, 5400]
     }
 
@@ -24,6 +25,7 @@ for i in np.arange(0.1, 1.0, 0.1):
     i = "{:.1f}".format(float(i))
     p = pandemic_a.copy()
     p['isolamento'] = float(i)
+    p["nome"] = "isolation_"+str(i)
     write_json(p, f'isolation_{i}', 'pandemic_a')
 
 # Change infection chance
@@ -31,12 +33,14 @@ for j in np.arange(0.1, 1.0, 0.1):
     j = "{:.1f}".format(float(j))
     p = pandemic_a.copy()
     p['change_infeccao'] = float(j)
+    p["nome"] = "infection_"+str(j)
     write_json(p, f'infeccao_{j}', 'pandemic_a')
 
 # Change infection time
 for k in np.arange(50, 150, 10):
     p = pandemic_a.copy()
     p['tempo_infectado'] = float(k)
+    p["nome"] = "infectiontime_"+str(k)
     write_json(p, f'tempo_{k}', 'pandemic_a')
 
 
