@@ -3,5 +3,7 @@
 	<input>
 		<net-file value="grid.net.xml"/>
 		<route-files value="grid.trips.xml"/>
+		<!--net-file value="wuhan.net.xml"/>
+		<route-files value="trips.trips.xml"/-->
 	</input>
 </configuration>

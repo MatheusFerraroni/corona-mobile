@@ -19,14 +19,25 @@ class CoronaCar:
         self.last_update = -1
         self.pos = None
 
+        self.tentativas_infect = []
+
         total_criado+=1
+
+        self.start_contagious = float('infinity')
+
+        self.contacts = 0
 
     def update_infos(self, traci, step):
         if self.last_update!=step:
             self.last_update = step
             self.pos = traci.vehicle.getPosition(str(self.idd))
 
-        self.infected = step<self.infected_till
+        status = step>self.start_contagious and step<self.infected_till
+
+        if self.infected and status==False:
+            traci.vehicle.setColor(str(self.idd), (0,0,255))
+
+        self.infected = status
 
     def is_infected(self):
         return self.infected
@@ -44,26 +55,52 @@ class CoronaCar:
         return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
     def remove(self, traci):
-        # print("REMOVENDO VEICULO", self.idd)
         traci.vehicle.remove(str(self.idd),3)
 
-    def INFECT(self, traci, till):
+    def INFECT(self, step, traci, till):
         global total_infectados
         if not self.can_infect:
             return
-        self.infected = True
-        self.infected_till = till
+
+        self.start_contagious = step+1
+        self.infected = False
+        self.infected_till = till+1
         self.can_infect = False
 
         traci.vehicle.setColor(str(self.idd), (255,0,0))
 
         total_infectados += 1
+        # print("FUI INFECTADO", self.idd)
+
+    def checa_delay_infect(self, step, carid):
+
+
+        ret = True
+        for i in range(len(self.tentativas_infect)):
+            if self.tentativas_infect[i]["step"]+300<step:
+                self.tentativas_infect[i] = None
+            elif self.tentativas_infect[i]["car"]==carid:
+                ret = False
+                break
+
+
+        self.tentativas_infect = [car for car in self.tentativas_infect if car]
+
+        return ret
+
+
+
+    def add_tentativa(self, step, carid):
+        self.tentativas_infect.append({"step":step, "car":carid})
+        # print(self.idd, self.tentativas_infect)
 
 
 class Trabalho:
 
     def __init__(self, config_file):
-
+        global total_infectados, total_criado
+        total_infectados = 0
+        total_criado = 0
         self.veiculos = []
 
         config_path = './configurations/pandemic_a/{0}'.format(config_file)
@@ -83,6 +120,17 @@ class Trabalho:
         self.distancia_infectar = infos["distancia_infectar"]
         self.random_infected = infos["random_infected"]
 
+        print(self)
+
+    def __str__(self):
+        r = {}
+        r["isolamento"] = self.isolamento
+        r["chance_infeccao"] = self.chance_infeccao
+        r["tempo_infectado"] = self.tempo_infectado
+        r["distancia_infectar"] = self.distancia_infectar
+        r["random_infected"] = self.random_infected
+        return json.dumps(r)
+
     def stop(self):
         self.file_log.close()
 
@@ -95,7 +143,9 @@ class Trabalho:
             self.veiculos.append(CoronaCar(c))
 
             if np.random.random()<self.random_infected:
-                self.veiculos[-1].INFECT(traci, self.step+self.tempo_infectado)
+            # if total_criado==40:
+                # print("INFECTANDO LAST")
+                self.veiculos[-1].INFECT(self.step, traci, self.step+self.tempo_infectado)
 
     def do_work(self, traci, step):
         self.step = step
@@ -126,36 +176,43 @@ class Trabalho:
             except Exception as e: # remove que chegaram ao destino
                 self.veiculos[i] = None
 
-            if c!=None:
-                if not c.is_infected() and not c.can_infect:
-                    c.remove(traci)
-                    self.veiculos[i] = None
 
 
 
         self.veiculos = [car for car in self.veiculos if car]
 
+
+
         for i in range(0, len(self.veiculos), 1): # percore entre os veiculos checando a distancia
             car1 = self.veiculos[i]
             for j in range(0, len(self.veiculos), 1):
-                if i==j:
-                    continue
                 car2 = self.veiculos[j]
 
-                alvo = None
-                if car1.is_infected():
-                    if car2.is_infected():
-                        continue
+                if i==j:
+                    continue
 
-                    d = car1.distance_to_car(traci, car2)
-                    if d<self.distancia_infectar:
-                        if np.random.random()<self.chance_infeccao:
-                            car2.INFECT(traci, self.step+self.tempo_infectado)
-                elif car2.is_infected():
-                    d = car1.distance_to_car(traci, car2)
-                    if d<self.distancia_infectar:
-                        if np.random.random()<self.chance_infeccao:
-                            car1.INFECT(traci, self.step+self.tempo_infectado)
+                d = car1.distance_to_car(traci, car2)
+                if d<self.distancia_infectar:
+
+                    can_go = car1.checa_delay_infect(self.step,car2.idd) and car2.checa_delay_infect(self.step,car1.idd)
+                    if can_go:
+
+                        power = np.random.random()
+                        if car1.is_infected():
+                            if not car2.is_infected():
+                                # print("DISTANCIA TESTE", car1.idd, car2.idd, d)
+                                # print("POW",power)
+
+                                car1.add_tentativa(self.step,car2.idd)
+                                car2.add_tentativa(self.step,car1.idd)
+                                if power<self.chance_infeccao:
+                                    car2.INFECT(self.step, traci, self.step+self.tempo_infectado)
+
+                        # elif car2.is_infected():
+                        #     car1.add_tentativa(self.step,car2.idd)
+                        #     car2.add_tentativa(self.step,car1.idd)
+                        #     if power<self.chance_infeccao:
+                        #         car1.INFECT(traci, self.step+self.tempo_infectado)
 
 
 

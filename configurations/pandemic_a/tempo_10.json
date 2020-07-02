@@ -1,0 +1,13 @@
+{
+    "isolamento": 0.0,
+    "chance_infeccao": 0.3,
+    "tempo_infectado": 10.0,
+    "distancia_infectar": 50,
+    "random_infected": 0.01,
+    "nome": "infectiontime_10",
+    "stationary_infection": [
+        1800,
+        3600,
+        5400
+    ]
+}

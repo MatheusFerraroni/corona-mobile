@@ -128,6 +128,8 @@ def main():
         # print(files)
         start_simulation(options.command, options.scenario, options.network, options.begin, options.end, options.interval, options.output, config_file)
 
+    print("FIM")
+
 
 if __name__ == "__main__":
     main()
