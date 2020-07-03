@@ -97,7 +97,7 @@ class CoronaCar:
 
 class Trabalho:
 
-    def __init__(self, config_file):
+    def __init__(self, config_file, v):
         global total_infectados, total_criado
         total_infectados = 0
         total_criado = 0
@@ -109,7 +109,7 @@ class Trabalho:
         f.close()
 
 
-        log_path = './log_output/{0}'.format(infos["nome"])
+        log_path = './log_output/{0}_{1}'.format(infos["nome"],v)
 
         self.file_log = open(log_path,"w")
 

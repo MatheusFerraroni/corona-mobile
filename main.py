@@ -62,11 +62,11 @@ def terminate_sumo(sumo):
         #         time.sleep(10)
 
 
-def run(network, begin, end, interval, config_file):
+def run(network, begin, end, interval, config_file, versao_i):
 
     step = 1
 
-    controlador = Trabalho(config_file)
+    controlador = Trabalho(config_file, versao_i)
 
     while step == 1 or traci.simulation.getMinExpectedNumber() > 0:
         traci.simulationStep()
@@ -88,7 +88,7 @@ def run(network, begin, end, interval, config_file):
     time.sleep(3)
 
 
-def start_simulation(sumo, scenario, network, begin, end, interval, output, config_file):
+def start_simulation(sumo, scenario, network, begin, end, interval, output, config_file, versao_i):
     unused_port_lock = UnusedPortLock()
     unused_port_lock.__enter__()
     remote_port = find_unused_port()
@@ -98,7 +98,7 @@ def start_simulation(sumo, scenario, network, begin, end, interval, output, conf
 
     try:
         traci.init(remote_port)
-        run(network, begin, end, interval, config_file)
+        run(network, begin, end, interval, config_file, versao_i)
     except Exception as e:
         print(e)
         raise
@@ -108,7 +108,7 @@ def start_simulation(sumo, scenario, network, begin, end, interval, output, conf
         unused_port_lock.__exit__()
 
 
-def main():
+def main(versao_i):
 
     parser = OptionParser()
     parser.add_option("-c", "--command", dest="command", default="sumo-gui", help="The command used to run SUMO [default: %default]", metavar="COMMAND")
@@ -126,10 +126,12 @@ def main():
 
     for config_file in files:
         # print(files)
-        start_simulation(options.command, options.scenario, options.network, options.begin, options.end, options.interval, options.output, config_file)
+        start_simulation(options.command, options.scenario, options.network, options.begin, options.end, options.interval, options.output, config_file, versao_i)
 
     print("FIM")
 
 
 if __name__ == "__main__":
-    main()
+
+    for i in range(10,20,1):
+        main(i)
