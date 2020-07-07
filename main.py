@@ -133,5 +133,5 @@ def main(versao_i):
 
 if __name__ == "__main__":
 
-    for i in range(10,20,1):
+    for i in range(0,10,1):
         main(i)
